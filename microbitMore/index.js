@@ -1,10 +1,9 @@
-const ArgumentType = require('../../extension-support/argument-type');
-const BlockType = require('../../extension-support/block-type');
-const log = require('../../util/log');
-const cast = require('../../util/cast');
-const formatMessage = require('format-message');
-const BLE = require('../../io/ble');
-const Base64Util = require('../../util/base64-util');
+// const ArgumentType = Scratch.ArgumentType;
+// const BlockType = Scratch.BlockType;
+// const log = Scratch.log;
+// const cast = Scratch.cast;
+// const formatMessage = Scratch.formatMessage;
+// const BLE = Scratch.BLE;
 
 const timeoutPromise = timeout => new Promise(resolve => setTimeout(resolve, timeout));
 
@@ -464,7 +463,7 @@ class MbitMore {
             MBITMORE_SERVICE.ANSLOG_IN,
             false)
             .then(result => {
-                const data = Base64Util.base64ToUint8Array(result.message);
+                const data = Buffer.from(result.message, 'base64');
                 const dataView = new DataView(data.buffer, 0);
                 const value1 = dataView.getUint16(0, true);
                 const value2 = dataView.getUint16(2, true);
@@ -530,7 +529,7 @@ class MbitMore {
             MBITMORE_SERVICE.SENSORS,
             false)
             .then(result => {
-                const data = Base64Util.base64ToUint8Array(result.message);
+                const data = Buffer.base64ToUint8Array(result.message, 'base64');
                 const dataView = new DataView(data.buffer, 0);
                 // Accelerometer
                 this._sensors.accelerationX = 1000 * dataView.getInt16(0, true) / G;
@@ -817,7 +816,7 @@ class MbitMore {
         for (let i = 0; i < message.length; i++) {
             output[i + 1] = message[i];
         }
-        const data = Base64Util.uint8ArrayToBase64(output);
+        const data = Buffer.from(output).toString('base64');
 
         this._ble.write(MICROBIT_SERVICE.ID, MICROBIT_SERVICE.TX, data, 'base64', true).then(
             () => {
@@ -865,7 +864,7 @@ class MbitMore {
      * @private
      */
     _updateMicrobitService (msg) {
-        const data = Base64Util.base64ToUint8Array(msg);
+        const data = Buffer.from(msg, 'base64');
         const dataView = new DataView(data.buffer, 0);
         const dataFormat = dataView.getInt8(19);
         if (dataFormat !== MBitMoreDataFormat.IO &&
@@ -978,7 +977,7 @@ class MbitMore {
             MBITMORE_SERVICE.IO,
             false)
             .then(result => {
-                const data = Base64Util.base64ToUint8Array(result.message);
+                const data = Buffer.from(result.message, 'base64');
                 const dataView = new DataView(data.buffer, 0);
                 const gpioData = dataView.getUint32(0, true);
                 for (let i = 0; i < this.gpio.length; i++) {
